@@ -1,17 +1,4 @@
 @echo off
-setlocal EnableDelayedExpansion
-
-:: Function to show loading animation with message
-:show_loading
-set "message=%~1"
-set "frames=-\|/"
-for /L %%i in (0,1,3) do (
-    cls
-    echo %message%
-    echo !frames:~%%i,1!
-    ping -n 1 127.0.0.1 > nul 2>&1
-)
-goto :show_loading
 
 echo Starting AI Resume Information Extractor...
 echo =======================================

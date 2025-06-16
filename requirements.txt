@@ -1,0 +1,9 @@
+flask
+requests
+pymupdf
+pytesseract
+Pillow
+opencv-python
+transformers
+torch
+python-dotenv

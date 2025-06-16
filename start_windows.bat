@@ -25,8 +25,15 @@ if not exist "venv" (
 )
 
 REM Setup API keys
+echo.
 echo Setting up API keys...
 python api_key_setup.py
+if %errorlevel% neq 0 (
+    echo.
+    echo Failed to set up API keys. Please try again.
+    pause
+    exit /b 1
+)
 
 cls
 echo =======================================

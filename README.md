@@ -1,74 +1,101 @@
+# AI Resume Information Extractor
 
-
-# AI Extraction Flask API
-
-This project provides a Flask API to extract information such as name, phone number, skills, and education details (college name, university, graduation year) from text using the OpenRouter API with the meta-llama/llama-3.3-8b-instruct:free model.
+A Flask-based API that extracts structured information from resumes in PDF or image format. The application uses OCR (Optical Character Recognition) to extract text and OpenRouter's LLM API to process and structure the information.
 
 ## Features
-- Extracts structured information from resume or profile text
-- Uses OpenRouter's free Llama 3.3 8B Instruct model
-- Modular codebase for easy extension
 
-## File Structure
-- `app.py`: Main Flask API entry point
-- `openrouter_client.py`: Handles OpenRouter API communication
-- `prompt_builder.py`: Builds the prompt for extraction
-- `requirements.txt`: Python dependencies
+- Extract text from PDF and image files
+- OCR support for scanned documents
+- Intelligent phone number extraction
+- Structured information extraction (name, contact, education, skills)
+- Support for multiple file uploads
+- Debug logging for troubleshooting
+
+## Requirements
+
+- Python 3.x
+- Tesseract OCR
+- OpenRouter API Key
 
 ## Setup Instructions
 
-### 1. Clone the repository
-```
-git clone <your-repo-url>
-cd AI-extraction
+### Windows Users
+
+1. Install Python 3.x from [python.org](https://python.org)
+2. Install Tesseract OCR:
+   - Download from [GitHub Releases](https://github.com/UB-Mannheim/tesseract/wiki)
+   - Add Tesseract to system PATH
+
+3. Double-click `start_windows.bat`
+   - Creates virtual environment
+   - Installs required packages
+   - Prompts for OpenRouter API key
+   - Starts the server
+
+### Linux/Mac Users
+
+1. Make the start script executable:
+```bash
+chmod +x start_unix.sh
 ```
 
-### 2. Install dependencies
-```
-pip install -r requirements.txt
-```
-
-### 3. Configure OpenRouter API Key
-- Open `openrouter_client.py`
-- Replace `YOUR_OPENROUTER_API_KEY` with your actual OpenRouter API key:
-  ```python
-  OPENROUTER_API_KEY = "YOUR_OPENROUTER_API_KEY"
-  ```
-- You can get a free API key from https://openrouter.ai/
-
-### 4. Run the Flask API
-```
-python app.py
+2. Run the start script:
+```bash
+./start_unix.sh
 ```
 
-The API will be available at `http://127.0.0.1:5000/extract`
+The script will:
+- Install required system packages
+- Create virtual environment
+- Install Python packages
+- Handle API key setup
+- Start the server
 
 ## Usage
-Send a POST request to `/extract` with a JSON body containing the text to extract from:
 
-```
-curl -X POST http://127.0.0.1:5000/extract \
-  -H "Content-Type: application/json" \
-  -d '{"text": "John Doe\nPhone: 123-456-7890\nSkills: Python, Flask\nEducation: BSc Computer Science, MIT, 2022"}'
-```
+1. Start the application using the appropriate script
+2. Open your web browser to `http://localhost:5000`
+3. Upload your resume (PDF or image)
+4. Get structured information including:
+   - Name
+   - Phone number
+   - Education details
+   - Skills
+   - Other relevant information
 
-### Example Response
-```
+## API Response Format
+
+```json
 {
-  "name": "John Doe",
-  "phone": "123-456-7890",
-  "skills": ["Python", "Flask"],
-  "education": {
-    "college": "MIT",
-    "university": "MIT",
-    "graduation_year": "2022"
+  "data": {
+    "name": "John Doe",
+    "phone": "1234567890",
+    "education": [
+      {
+        "college": "Sample University",
+        "degree": "Bachelor's",
+        "graduation_year": "2020"
+      }
+    ],
+    "skills": ["Python", "JavaScript", "etc"]
   }
 }
 ```
 
+## Troubleshooting
+
+- Check debug logs in the terminal for extraction details
+- Ensure image/PDF is clear and readable
+- Verify API key is correctly set up
+- Make sure Tesseract OCR is properly installed
+
 ## Notes
-- This API expects the text to be already extracted from PDF or image. For OCR or PDF text extraction, consider using Tesseract or PyMuPDF.
-- The OpenRouter API may return slightly different JSON keys or formats depending on the input and model output.
+
+- Works best with clear, well-formatted documents
+- OCR accuracy depends on image quality
+- Phone numbers are extracted using both regex and LLM
+- Multiple phone number formats are supported
 
 ## License
+
 This project is open-source and free to use.

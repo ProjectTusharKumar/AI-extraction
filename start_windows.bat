@@ -1,70 +1,71 @@
 @echo off
-setlocal EnableDelayedExpansion
+setlocal
 
-:: Ensure we're running from the batch file's location
 cd /d "%~dp0"
 
-echo Starting AI Resume Information Extractor...
-echo =======================================
+echo.
+echo ================================
+echo  AI Resume Information Extractor
+echo ================================
+echo.
 
-REM Check if Python is installed
-set "PYTHON_EXE=C:\Users\itstu\AppData\Local\Microsoft\WindowsApps\python.exe"
-if not exist "%PYTHON_EXE%" (
-    echo Python is not installed! Please install Python 3.x from python.org
-    echo Press any key to exit...
-    pause >nul
-    exit /b
-)
+:: --- CONFIGURE YOUR PATHS ---
+:: Set your actual Python exe path here
+set "PYTHON_EXE=C:\Users\itstu\AppData\Local\Programs\Python\Python313\python.exe"
 
+:: Set your actual Tesseract exe path here
+set "TESSERACT_EXE=C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-REM Check and install Tesseract if not present
-where tesseract >nul 2>&1
+:: --- CHECK PYTHON ---
+"%PYTHON_EXE%" --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Tesseract is not installed. Installing now...
-    
-    if not exist "tools" mkdir tools
-    cd tools
-    
-    echo Downloading Tesseract installer...
-    powershell -Command "& {Invoke-WebRequest -Uri 'https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-5.3.1.20230401.exe' -OutFile 'tesseract-installer.exe'}"
-    
-    echo Installing Tesseract...
-    tesseract-installer.exe /S /D=C:\Program Files\Tesseract-OCR
-    
-    echo Adding Tesseract to PATH for this session...
-    set "PATH=%PATH%;C:\Program Files\Tesseract-OCR"
-    
-    cd ..
-    echo Tesseract installation completed!
-    echo.
+    echo Python not found at: %PYTHON_EXE%
+    pause
+    exit /b 1
 )
 
-REM Check if virtual environment exists, if not create one
+:: --- CHECK TESSERACT ---
+"%TESSERACT_EXE%" --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Tesseract not found at: %TESSERACT_EXE%
+    pause
+    exit /b 1
+)
+
+:: --- VENV SETUP ---
 if not exist "venv" (
     echo Creating virtual environment...
-    python -m venv venv
-    call venv\Scripts\activate
-    echo Installing required packages...
-    pip install -r requirements.txt
-) else (
-    echo Activating virtual environment...
-    call venv\Scripts\activate
+    "%PYTHON_EXE%" -m venv venv
 )
 
-REM Setup API keys
+:: --- ACTIVATE VENV ---
+call venv\Scripts\activate.bat
+if not defined VIRTUAL_ENV (
+    echo Error: Virtual environment activation failed.
+    pause
+    exit /b 1
+)
+
+:: --- UPGRADE PIP + INSTALL REQUIREMENTS ---
+echo Installing dependencies...
+python -m pip install --upgrade pip
+if exist requirements.txt (
+    pip install -r requirements.txt
+)
+
+:: --- API KEY SETUP ---
 echo.
 echo Setting up API keys...
-python api_key_setup.py
+python "%~dp0api_key_setup.py"
 if %errorlevel% neq 0 (
-    echo.
     echo Failed to set up API keys. Please try again.
     pause
     exit /b 1
 )
 
-cls
-echo =======================================
-echo Starting the server...
+:: --- START THE APP ---
+echo.
+echo Starting AI Resume Information Extractor...
 echo =======================================
 echo The application will be available at: http://localhost:5000
 echo.
@@ -73,9 +74,12 @@ echo 1. Open your web browser
 echo 2. Go to http://localhost:5000
 echo 3. Upload your resume (PDF or Image)
 echo.
-echo To stop the server, close this window or press Ctrl+C
-echo =======================================
+
+:: Optionally pass Tesseract location via env var (if your app uses it this way)
+set TESSERACT_CMD=%TESSERACT_EXE%
 
 python app.py
 
-pause
+echo.
+echo Press any key to exit...
+pause >nul

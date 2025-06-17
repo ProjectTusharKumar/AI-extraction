@@ -1,38 +1,37 @@
 @echo off
 setlocal EnableDelayedExpansion
 
+:: Ensure we're running from the batch file's location
+cd /d "%~dp0"
+
 echo Starting AI Resume Information Extractor...
 echo =======================================
 
 REM Check if Python is installed
-where python >nul 2>&1
-if %errorlevel% neq 0 (
+set "PYTHON_EXE=C:\Users\itstu\AppData\Local\Microsoft\WindowsApps\python.exe"
+if not exist "%PYTHON_EXE%" (
     echo Python is not installed! Please install Python 3.x from python.org
     echo Press any key to exit...
     pause >nul
     exit /b
 )
 
+
 REM Check and install Tesseract if not present
 where tesseract >nul 2>&1
 if %errorlevel% neq 0 (
     echo Tesseract is not installed. Installing now...
     
-    REM Create tools directory if it doesn't exist
     if not exist "tools" mkdir tools
     cd tools
     
-    REM Download Tesseract installer
     echo Downloading Tesseract installer...
     powershell -Command "& {Invoke-WebRequest -Uri 'https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-5.3.1.20230401.exe' -OutFile 'tesseract-installer.exe'}"
     
-    REM Run installer silently
     echo Installing Tesseract...
     tesseract-installer.exe /S /D=C:\Program Files\Tesseract-OCR
     
-    REM Add Tesseract to PATH
-    echo Adding Tesseract to PATH...
-    setx PATH "%PATH%;C:\Program Files\Tesseract-OCR" /M
+    echo Adding Tesseract to PATH for this session...
     set "PATH=%PATH%;C:\Program Files\Tesseract-OCR"
     
     cd ..

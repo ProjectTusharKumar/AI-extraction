@@ -48,54 +48,196 @@ The script will:
 - Install required system packages
 - Create virtual environment
 - Install Python packages
-- Handle API key setup
-- Start the server
+🧾 AI Resume Information Extractor
 
-## Usage
+Make your hiring pipeline faster: this project extracts structured candidate information (name, contact, education, skills, etc.) from resumes in PDF or image formats using OCR + LLMs.
 
-1. Start the application using the appropriate script
-2. Open your web browser to `http://localhost:5000`
-3. Upload your resume (PDF or image)
-4. Get structured information including:
-   - Name
-   - Phone number
-   - Education details
-   - Skills
-   - Other relevant information
+Built as a small, production-friendly Flask API that combines Tesseract OCR for text extraction with an LLM (via OpenRouter) to clean, validate, and structure the data.
 
-## API Response Format
+## ✨ Highlights
+
+- Fast OCR-powered text extraction from PDFs and images
+- LLM-based post-processing for robust entity extraction (names, phone, email, education, skills)
+- Multiple file upload support and debug logging for easy troubleshooting
+- Extensible and easy to run locally or in a container
+
+## 🚀 Features
+
+- Extract text from scanned and digital resumes (PDF / JPG / PNG)
+- Structured JSON output: name, phone, email, education, skills, experience snippets
+- Intelligent phone/email extraction (regex + LLM validation)
+- Batch/multiple uploads
+- Clear logging and simple API for integration with ATS or dashboards
+
+## 🧭 Typical Workflow
+
+1. Client uploads resume PDF or image to the API endpoint.
+2. Server runs Tesseract OCR to convert the document to raw text.
+3. Raw text is passed to an LLM (OpenRouter client) with a prompt that extracts structured fields.
+4. Post-processing cleans phone numbers, dates, and normalizes education/skills.
+5. API returns structured JSON suitable for downstream systems (ATS, analytics).
+
+## 🛠 Tech Stack
+
+- Python + Flask — lightweight API
+- Tesseract OCR — local OCR engine
+- OpenRouter (or equivalent LLM provider) — LLM for parsing/validation
+- Requests / HTTP client for API calls
+- (Optional) Docker for containerized deployments
+
+## ⚙️ Quick Start (Local)
+
+Requirements:
+- Python 3.8+ installed
+- Tesseract OCR installed and available on PATH
+- OpenRouter API key (or another LLM provider key)
+
+1) Install Python deps:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+2) Configure API key:
+
+- Export `OPENROUTER_API_KEY` (or follow `api_key_setup.py` interactive flow)
+
+```bash
+export OPENROUTER_API_KEY="your_api_key_here"
+```
+
+3) Run the app:
+
+```bash
+python app.py
+```
+
+4) Open the UI or use `curl` to POST files to `http://localhost:5000/upload` (or the route implemented in the code).
+
+## 📬 Example API Response
 
 ```json
 {
   "data": {
-    "name": "John Doe",
-    "phone": "1234567890",
+    "name": "Jane Doe",
+    "phone": "+1-555-555-5555",
+    "email": "jane.doe@example.com",
     "education": [
-      {
-        "college": "Sample University",
-        "degree": "Bachelor's",
-        "graduation_year": "2020"
-      }
+      {"institution": "University X", "degree": "B.Sc Computer Science", "year": "2020"}
     ],
-    "skills": ["Python", "JavaScript", "etc"]
+    "skills": ["Python", "NLP", "Docker"]
   }
 }
 ```
 
-## Troubleshooting
+Adjust fields depending on the extraction prompt and downstream needs.
 
-- Check debug logs in the terminal for extraction details
-- Ensure image/PDF is clear and readable
-- Verify API key is correctly set up
-- Make sure Tesseract OCR is properly installed
+## 🧪 Testing & Development
 
-## Notes
+- Use the provided start scripts (`start_windows.bat`, or the Unix start script if present) to create a venv and install deps.
+- Add sample resumes in a `samples/` folder and run the upload endpoint to iterate quickly.
 
-- Works best with clear, well-formatted documents
-- OCR accuracy depends on image quality
-- Phone numbers are extracted using both regex and LLM
-- Multiple phone number formats are supported
+## 🐛 Troubleshooting
 
-## License
+- OCR returns noisy text: try improving PDF/image quality or use deskewing/preprocessing.
+- Tesseract not found: ensure Tesseract is installed and on your PATH (e.g., `tesseract --version`).
+- LLM errors: confirm your `OPENROUTER_API_KEY` is valid and has quota.
 
-This project is open-source and free to use.
+## ♻️ Extending the Project
+
+- Swap the LLM provider: update `openrouter_client.py` or add adapters for new providers.
+- Add more structured fields: languages, certifications, project links.
+- Add a small front-end or integrate a webhook to push results to an ATS.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open issues for bugs or feature requests and follow these steps:
+
+1. Fork the repo
+2. Create a branch `feat/my-feature`
+3. Add tests / documentation
+4. Open a pull request
+
+## 📄 License
+
+This project is open-source. Include your preferred license (e.g., MIT) or add a `LICENSE` file.
+
+## 📬 Contact / Impressing a Recruiter
+
+- Add a short project summary, your role, and the impact (e.g., "Reduced manual resume processing time by X%" or "Processed N resumes with Y accuracy") in this README or your portfolio page.
+- Consider adding a short demo GIF or hosted example link in the repo description to make a strong impression.
+
+---
+
+If you'd like, I can also:
+
+- Add a small `samples/` folder with example resumes and a test script that posts them to the API
+- Create a minimal `Dockerfile` and `docker-compose.yml` for quick deployments
+
+Let me know which of the above you'd like next and I'll implement it.
+
+  2) Configure API key:
+
+  - Export `OPENROUTER_API_KEY` (or follow `api_key_setup.py` interactive flow)
+
+  ```bash
+  export OPENROUTER_API_KEY="your_api_key_here"
+  ```
+
+  3) Run the app:
+
+  ```bash
+  python app.py
+  ```
+
+  4) Open the UI or use `curl` to POST files to `http://localhost:5000/upload` (or the route implemented in the code).
+
+  ## 📬 Example API Response
+
+  ```json
+  {
+    "data": {
+      "name": "Jane Doe",
+      "phone": "+1-555-555-5555",
+      "email": "jane.doe@example.com",
+      "education": [
+        {"institution": "University X", "degree": "B.Sc Computer Science", "year": "2020"}
+      ],
+      "skills": ["Python", "NLP", "Docker"]
+    }
+  }
+  ```
+
+  Adjust fields depending on the extraction prompt and downstream needs.
+
+  ## 🧪 Testing & Development
+
+  - Use the provided start scripts (`start_windows.bat`, or the Unix start script if present) to create a venv and install deps.
+  - Add sample resumes in a `samples/` folder and run the upload endpoint to iterate quickly.
+
+  ## 🐛 Troubleshooting
+
+  - OCR returns noisy text: try improving PDF/image quality or use deskewing/preprocessing.
+  - Tesseract not found: ensure Tesseract is installed and on your PATH (e.g., `tesseract --version`).
+  - LLM errors: confirm your `OPENROUTER_API_KEY` is valid and has quota.
+
+  ## ♻️ Extending the Project
+
+  - Swap the LLM provider: update `openrouter_client.py` or add adapters for new providers.
+  - Add more structured fields: languages, certifications, project links.
+  - Add a small front-end or integrate a webhook to push results to an ATS.
+
+  ## 🤝 Contributing
+
+  Contributions are welcome! Please open issues for bugs or feature requests and follow these steps:
+
+  1. Fork the repo
+  2. Create a branch `feat/my-feature`
+  3. Add tests / documentation
+  4. Open a pull request
+
+  ## 📄 License
+
+  This project is open-source. Include your preferred license (e.g., MIT) or add a `LICENSE` file.
